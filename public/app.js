@@ -1,6 +1,9 @@
 import { distanceMiles } from './geo.js';
 import { fetchTeeTimes } from './teeItUpClient.js';
 
+// Default search origin: zip 28277 (Ballantyne, Charlotte, NC).
+const DEFAULT_LOCATION = { lat: 35.05, lng: -80.8182 };
+
 const form = document.getElementById('search-form');
 const locationInput = document.getElementById('location');
 const dateInput = document.getElementById('date');
@@ -9,6 +12,7 @@ const resultsEl = document.getElementById('results');
 
 dateInput.value = new Date().toISOString().slice(0, 10);
 dateInput.min = dateInput.value;
+locationInput.value = `${DEFAULT_LOCATION.lat}, ${DEFAULT_LOCATION.lng}`;
 
 document.getElementById('use-location').addEventListener('click', () => {
   if (!navigator.geolocation) {
@@ -84,9 +88,7 @@ async function nearbyCourses(lat, lng, radiusMiles) {
     .sort((a, b) => a.distanceMiles - b.distanceMiles);
 }
 
-form.addEventListener('submit', async (event) => {
-  event.preventDefault();
-
+async function runSearch() {
   const coords = parseLocation(locationInput.value);
   if (!coords) {
     statusEl.textContent = 'Enter location as "latitude, longitude".';
@@ -118,4 +120,11 @@ form.addEventListener('submit', async (event) => {
   } catch (err) {
     statusEl.textContent = 'Something went wrong. Please try again.';
   }
+}
+
+form.addEventListener('submit', (event) => {
+  event.preventDefault();
+  runSearch();
 });
+
+runSearch();

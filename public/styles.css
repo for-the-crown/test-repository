@@ -57,26 +57,29 @@ main {
 
 .location-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .location-row input {
   flex: 1;
+  min-width: 0;
 }
 
 input,
 select {
-  padding: 8px;
+  width: 100%;
+  padding: 10px;
   border: 1px solid var(--border);
   border-radius: 6px;
-  font-size: 1rem;
+  font-size: 16px; /* 16px+ keeps iOS Safari from auto-zooming on focus */
 }
 
 button {
   cursor: pointer;
   border: none;
   border-radius: 6px;
-  padding: 10px 16px;
+  padding: 12px 16px;
   font-size: 1rem;
   background: var(--green);
   color: white;
@@ -159,5 +162,28 @@ button:hover {
     --card-bg: #262626;
     --border: #3a3a3a;
     --text: #eee;
+  }
+}
+
+@media (max-width: 480px) {
+  header {
+    padding: 20px 16px;
+  }
+
+  main {
+    padding: 12px;
+  }
+
+  .location-row {
+    flex-direction: column;
+  }
+
+  #use-location {
+    width: 100%;
+  }
+
+  .slot {
+    flex: 1 1 calc(50% - 8px);
+    text-align: center;
   }
 }
