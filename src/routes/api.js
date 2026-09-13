@@ -1,5 +1,5 @@
 const express = require('express');
-const courses = require('../../data/courses.json');
+const courses = require('../../public/courses.json');
 const { distanceMiles } = require('../lib/geo');
 const { fetchTeeTimes } = require('../lib/teeItUpClient');
 

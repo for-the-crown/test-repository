@@ -1,3 +1,6 @@
+import { distanceMiles } from './geo.js';
+import { fetchTeeTimes } from './teeItUpClient.js';
+
 const form = document.getElementById('search-form');
 const locationInput = document.getElementById('location');
 const dateInput = document.getElementById('date');
@@ -69,6 +72,18 @@ function renderResults(data) {
   }
 }
 
+async function nearbyCourses(lat, lng, radiusMiles) {
+  const courses = await fetch('./courses.json').then((res) => res.json());
+
+  return courses
+    .map((course) => ({
+      ...course,
+      distanceMiles: Math.round(distanceMiles(lat, lng, course.lat, course.lng) * 10) / 10,
+    }))
+    .filter((course) => course.distanceMiles <= radiusMiles)
+    .sort((a, b) => a.distanceMiles - b.distanceMiles);
+}
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
 
@@ -78,23 +93,28 @@ form.addEventListener('submit', async (event) => {
     return;
   }
 
-  const params = new URLSearchParams({
-    lat: coords.lat,
-    lng: coords.lng,
-    date: dateInput.value,
-    players: document.getElementById('players').value,
-    radius: document.getElementById('radius').value,
-  });
+  const date = dateInput.value;
+  const players = parseInt(document.getElementById('players').value, 10) || 1;
+  const radius = parseFloat(document.getElementById('radius').value) || 15;
 
   statusEl.textContent = 'Searching...';
   resultsEl.innerHTML = '';
 
   try {
-    const response = await fetch(`/api/tee-times/search?${params}`);
-    if (!response.ok) throw new Error('Request failed');
-    const data = await response.json();
-    statusEl.textContent = `Found ${data.results.length} course(s) within ${data.radius} miles.`;
-    renderResults(data);
+    const courses = await nearbyCourses(coords.lat, coords.lng, radius);
+    const results = await Promise.all(
+      courses.map(async (course) => {
+        try {
+          return { course, date, teeTimes: await fetchTeeTimes(course, date, players) };
+        } catch (err) {
+          console.error(`Failed to fetch tee times for ${course.id}:`, err.message);
+          return { course, date, teeTimes: [], error: 'Live tee times unavailable right now.' };
+        }
+      })
+    );
+
+    statusEl.textContent = `Found ${results.length} course(s) within ${radius} miles.`;
+    renderResults({ results });
   } catch (err) {
     statusEl.textContent = 'Something went wrong. Please try again.';
   }
