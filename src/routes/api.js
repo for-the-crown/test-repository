@@ -1,7 +1,7 @@
 const express = require('express');
 const courses = require('../../data/courses.json');
 const { distanceMiles } = require('../lib/geo');
-const { generateTeeTimes } = require('../lib/mockTeeTimes');
+const { fetchTeeTimes } = require('../lib/teeItUpClient');
 
 const router = express.Router();
 
@@ -33,7 +33,7 @@ router.get('/courses/nearby', (req, res) => {
 });
 
 // GET /api/tee-times/search?lat=&lng=&radius=&date=&players=
-router.get('/tee-times/search', (req, res) => {
+router.get('/tee-times/search', async (req, res) => {
   const coords = parseCoords(req.query);
   if (!coords) {
     return res.status(400).json({ error: 'lat and lng query params are required numbers' });
@@ -43,11 +43,16 @@ router.get('/tee-times/search', (req, res) => {
   const date = req.query.date || new Date().toISOString().slice(0, 10);
   const players = parseInt(req.query.players, 10) || 1;
 
-  const results = nearbyCourses(coords.lat, coords.lng, radius).map((course) => ({
-    course,
-    date,
-    teeTimes: generateTeeTimes(course, date, players),
-  }));
+  const results = await Promise.all(
+    nearbyCourses(coords.lat, coords.lng, radius).map(async (course) => {
+      try {
+        return { course, date, teeTimes: await fetchTeeTimes(course, date, players) };
+      } catch (err) {
+        console.error(`Failed to fetch tee times for ${course.id}:`, err.message);
+        return { course, date, teeTimes: [], error: 'Live tee times unavailable right now.' };
+      }
+    })
+  );
 
   res.json({ date, players, radius, results });
 });

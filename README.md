@@ -3,13 +3,18 @@
 Search for available golf tee times at courses near you, filtered by date,
 radius, and number of players.
 
-## Status: MVP scaffold
+## Status: MVP with real data
 
-This is a working end-to-end skeleton: location search → nearby courses →
-tee-time listings. Tee-time inventory is currently **mock data**, generated
-deterministically per course/date so results look stable across repeated
-searches. The course list (`data/courses.json`) is also sample data centered
-on Austin, TX — replace it with real courses in your area.
+Location search → nearby courses → real, live tee-time listings. The course
+list (`data/courses.json`) currently has two Mecklenburg County, NC courses
+(Dr. Charles L. Sifford Golf Course, Harry L. Jones, Sr. Golf Course). Tee
+times and pricing are fetched live from the Mecklenburg County Golf booking
+engine (GolfNow/TeeItUp) — see `src/lib/teeItUpClient.js`.
+
+**Caveat:** that's an undocumented/private API the booking widget itself
+calls, not a published partner API. It could change or block this app
+without notice. If a course's fetch fails, the app shows an "unavailable"
+message for that course rather than crashing the whole search.
 
 ## Running it
 
@@ -28,40 +33,28 @@ coordinates as `latitude, longitude`.
   - `GET /api/courses/nearby?lat=&lng=&radius=`
   - `GET /api/tee-times/search?lat=&lng=&radius=&date=&players=`
 - `src/lib/geo.js` — Haversine distance calculation for "nearby" filtering.
-- `src/lib/mockTeeTimes.js` — generates plausible tee-time slots per course/date.
-  This is the seam to replace with a real data source (see below).
-- `data/courses.json` — course directory (name, address, coordinates, booking URL).
+- `src/lib/teeItUpClient.js` — fetches live tee times/pricing from the
+  Mecklenburg County Golf (GolfNow/TeeItUp) booking backend for any course
+  with a `facilityId`. This is the seam to extend/replace per data source.
+- `data/courses.json` — course directory (name, address, coordinates,
+  `facilityId` for the live lookup, and a booking link as a fallback).
 - `public/` — vanilla HTML/CSS/JS frontend (no build step required).
 
-## Swapping in real data
+## Adding more courses
 
-Two things need to become real before this is a genuine product:
-
-1. **Course directory** (`data/courses.json`): replace with actual courses in
-   your target area — name, address, lat/lng, and a booking link at minimum.
-   This could later move to a database (Postgres) once it's more than a
-   static list.
-
-2. **Live tee-time inventory** (`src/lib/mockTeeTimes.js`): replace
-   `generateTeeTimes(course, date, players)` with a real lookup. Options,
-   roughly in order of practicality for a small/local app:
-   - Direct integration with a handful of local courses (API, CSV feed, or
-     webhook) if they'll work with you directly.
-   - A booking-platform partner API (e.g. GolfNow/EZLinks, Chronogolf,
-     Golf18Network) — typically requires a business/partner agreement.
-   - Scraping individual course booking widgets — fragile and only
-     practical for a small, fixed set of courses.
-
-   Whatever the source, keep the function signature
-   (`(course, date, players) => teeTimeSlot[]`) so the rest of the app
-   doesn't need to change. Live data should also be cached (e.g. Redis,
-   short TTL) since it will be far more expensive to fetch than mock data.
+A course only gets live tee times if it's on the same TeeItUp/GolfNow
+backend and has a `facilityId` in `data/courses.json` (find it in the
+course's booking-widget URL, e.g. `...book.teeitup.com/teetimes?course=1557`).
+Courses on a different booking platform need their own fetcher following the
+same shape as `fetchTeeTimes(course, date, players) => teeTimeSlot[]` in
+`teeItUpClient.js`.
 
 ## Next steps
 
-- [ ] Pick and wire up a real tee-time data source for at least one course.
+- [ ] Add caching for live tee-time lookups (this hits the live API on every
+      search; a short TTL cache would reduce load and latency).
 - [ ] Move course directory into a database once it needs to scale beyond a
       static list.
 - [ ] Add a map view alongside the list view.
-- [ ] Add caching for live tee-time lookups.
-- [ ] Consider in-app booking (requires a payments/booking-partner API).
+- [ ] Consider in-app booking (requires a payments/booking-partner API, or
+      continuing to deep-link to the real booking page as the fallback).

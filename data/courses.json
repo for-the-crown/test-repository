@@ -1,47 +1,22 @@
 [
   {
-    "id": "riverbend-golf-club",
-    "name": "Riverbend Golf Club",
-    "address": "1200 River Rd, Austin, TX",
-    "lat": 30.3078,
-    "lng": -97.7559,
-    "holes": 18,
-    "bookingUrl": "https://example.com/riverbend/book"
-  },
-  {
-    "id": "sunset-hills-links",
-    "name": "Sunset Hills Links",
-    "address": "48 Hillcrest Ave, Austin, TX",
-    "lat": 30.2895,
-    "lng": -97.7395,
-    "holes": 18,
-    "bookingUrl": "https://example.com/sunset-hills/book"
-  },
-  {
-    "id": "oakmont-public-course",
-    "name": "Oakmont Public Course",
-    "address": "900 Oak St, Austin, TX",
-    "lat": 30.3352,
-    "lng": -97.7011,
+    "id": "charles-sifford-golf-course",
+    "name": "Dr. Charles L. Sifford Golf Course at Revolution Park",
+    "address": "1225 Remount Rd, Charlotte, NC 28208",
+    "lat": 35.2138,
+    "lng": -80.8786,
     "holes": 9,
-    "bookingUrl": "https://example.com/oakmont/book"
+    "facilityId": 1563,
+    "bookingUrl": "https://meck-county-golf-booking-engine.book.teeitup.com/teetimes?course=1563"
   },
   {
-    "id": "pecan-creek-golf",
-    "name": "Pecan Creek Golf",
-    "address": "3311 Creekside Dr, Round Rock, TX",
-    "lat": 30.5083,
-    "lng": -97.6789,
+    "id": "harry-jones-golf-course",
+    "name": "Harry L. Jones, Sr. Golf Course",
+    "address": "1525 W Tyvola Rd, Charlotte, NC 28217",
+    "lat": 35.1721,
+    "lng": -80.9128,
     "holes": 18,
-    "bookingUrl": "https://example.com/pecan-creek/book"
-  },
-  {
-    "id": "lakeview-municipal",
-    "name": "Lakeview Municipal Golf Course",
-    "address": "77 Lakeshore Dr, Austin, TX",
-    "lat": 30.2672,
-    "lng": -97.7431,
-    "holes": 18,
-    "bookingUrl": "https://example.com/lakeview/book"
+    "facilityId": 1557,
+    "bookingUrl": "https://meck-county-golf-booking-engine.book.teeitup.com/teetimes?course=1557"
   }
 ]

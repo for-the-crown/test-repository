@@ -39,12 +39,13 @@ function renderResults(data) {
     return;
   }
 
-  for (const { course, teeTimes } of data.results) {
+  for (const { course, teeTimes, error } of data.results) {
     const card = document.createElement('div');
     card.className = 'course-card';
 
-    const slotsHtml =
-      teeTimes.length > 0
+    const slotsHtml = error
+      ? `<p class="no-slots">${error}</p>`
+      : teeTimes.length > 0
         ? teeTimes
             .map(
               (slot) => `
